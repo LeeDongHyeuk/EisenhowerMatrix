@@ -1,0 +1,15 @@
+#first-to-do li::marker {
+  color: green;
+}
+
+#second-to-do li::marker {
+  color: yellow;
+}
+
+#third-to-do li::marker {
+  color: blue;
+}
+
+#fourth-to-do li::marker {
+  color: red;
+}
