@@ -1,0 +1,15 @@
+.first::marker {
+  color: #36ae7c;
+}
+
+.second::marker {
+  color: #f9d923;
+}
+
+.third::marker {
+  color: #187498;
+}
+
+.fourth::marker {
+  color: #eb5353;
+}

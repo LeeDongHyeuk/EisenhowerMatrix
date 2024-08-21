@@ -1,4 +1,4 @@
-const todoTierList = document.querySelectorAll("ul");
+const todoList = document.querySelector("ul");
 const todoForm = document.querySelector("form");
 const emergencyCheck = document.getElementById("emergency-check");
 const importantCheck = document.getElementById("important-check");
@@ -13,9 +13,9 @@ function todoTier() {
   let tier;
 
   if (isImportantTodo) {
-    tier = isEmergencyTodo ? 1 : 2;
+    tier = isEmergencyTodo ? "first" : "second";
   } else {
-    tier = isEmergencyTodo ? 3 : 4;
+    tier = isEmergencyTodo ? "third" : "fourth";
   }
 
   return tier;
@@ -43,8 +43,9 @@ function paintTodo(newTodo) {
   button.addEventListener("click", deleteTodo);
   li.appendChild(span);
   li.appendChild(button);
-  const todoTierUl = todoTierList[newTodo.tier - 1];
-  todoTierUl.appendChild(li);
+  li.className = todoTier();
+  const todoTierUl = todoList;
+  todoTierUl.prepend(li);
 }
 
 function handleTodoSubmit(event) {
@@ -56,15 +57,9 @@ function handleTodoSubmit(event) {
     text: todoText.value,
   };
 
-  if (todoTierList[newTodoObj.tier - 1].childElementCount >= 10) {
-    alert(
-      "할 일은 항목 당 10개까지만 생성 가능합니다. 다른 할 일을 지우고 추가하세요."
-    );
-  } else {
-    todos.push(newTodoObj);
-    paintTodo(newTodoObj);
-    saveTodo();
-  }
+  todos.push(newTodoObj);
+  paintTodo(newTodoObj);
+  saveTodo();
 
   emergencyCheck.checked = false;
   importantCheck.checked = false;
