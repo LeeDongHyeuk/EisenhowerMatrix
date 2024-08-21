@@ -1,76 +1,86 @@
-const todoList = document.querySelector("ul");
-const todoForm = document.querySelector("form");
-const emergencyCheck = document.getElementById("emergency-check");
-const importantCheck = document.getElementById("important-check");
-const todoText = document.getElementById("to-do-text");
+const TASKS_KEY = "tasks";
+let tasks = [];
 
-const TODOS_KEY = "toDos";
-let todos = [];
+const taskForm = document.querySelector("form");
+const emergencyCheckbox = document.getElementById("emergency-checkbox");
+const importantCheckbox = document.getElementById("important-checkbox");
+const taskText = document.getElementById("to-do-text");
 
-function todoTier() {
-  const isEmergencyTodo = emergencyCheck.checked;
-  const isImportantTodo = importantCheck.checked;
-  let tier;
+taskForm.addEventListener("submit", handleTaskSubmit);
 
-  if (isImportantTodo) {
-    tier = isEmergencyTodo ? "first" : "second";
-  } else {
-    tier = isEmergencyTodo ? "third" : "fourth";
-  }
-
-  return tier;
-}
-
-function saveTodo() {
-  localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
-}
-
-function deleteTodo(event) {
-  const li = event.target.parentElement;
-  li.remove();
-  todos = todos.filter((todo) => todo.id !== parseInt(li.id));
-  saveTodo();
-}
-
-function paintTodo(newTodo) {
-  const li = document.createElement("li");
-  const span = document.createElement("span");
-  const button = document.createElement("button");
-
-  li.id = newTodo.id;
-  span.innerText = newTodo.text;
-  button.innerText = "X";
-  button.addEventListener("click", deleteTodo);
-  li.appendChild(span);
-  li.appendChild(button);
-  li.className = todoTier();
-  const todoTierUl = todoList;
-  todoTierUl.prepend(li);
-}
-
-function handleTodoSubmit(event) {
+function handleTaskSubmit(event) {
   event.preventDefault();
 
-  const newTodoObj = {
-    id: Date.now(),
-    tier: todoTier(),
-    text: todoText.value,
-  };
+  const newTaskObj = createTaskObj();
+  tasks.push(newTaskObj);
+  paintTask(newTaskObj);
+  saveTask();
 
-  todos.push(newTodoObj);
-  paintTodo(newTodoObj);
-  saveTodo();
-
-  emergencyCheck.checked = false;
-  importantCheck.checked = false;
-  todoText.value = null;
+  taskForm.reset();
 }
 
-todoForm.addEventListener("submit", handleTodoSubmit);
+function createTaskObj() {
+  return {
+    id: Date.now(),
+    tier: returnTaskTier(),
+    text: taskText.value,
+  };
+}
 
-const savedTodos = localStorage.getItem(TODOS_KEY);
+function returnTaskTier() {
+  const isEmergency = emergencyCheckbox.checked;
+  const isImportant = importantCheckbox.checked;
 
-if (savedTodos !== null) {
-  todos = JSON.parse(savedTodos);
-  todos.forEach(paintTodo);
+  if (isImportant && isEmergency) {
+    return "first";
+  }
+
+  if (isImportant) {
+    return "second";
+  }
+
+  if (isEmergency) {
+    return "third";
+  }
+
+  return "fourth";
+}
+
+function paintTask(newTaskObj) {
+  const li = document.createElement("li");
+  li.id = newTaskObj.id;
+
+  const span = document.createElement("span");
+  span.innerText = newTaskObj.text;
+
+  const button = document.createElement("button");
+  button.innerText = "X";
+  button.addEventListener("click", deleteTask);
+
+  li.appendChild(span);
+  li.appendChild(button);
+  li.className = newTaskObj.tier;
+
+  const taskList = document.querySelector("ul");
+  taskList.prepend(li);
+}
+
+function deleteTask(event) {
+  const li = event.target.parentElement;
+  li.remove();
+
+  tasks = tasks.filter((todo) => todo.id !== parseInt(li.id));
+
+  saveTask();
+}
+
+function saveTask() {
+  localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+}
+
+const savedTasks = localStorage.getItem(TASKS_KEY);
+
+if (savedTasks !== null) {
+  tasks = JSON.parse(savedTasks);
+  tasks.forEach(paintTask);
 }
