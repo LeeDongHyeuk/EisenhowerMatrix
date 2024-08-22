@@ -1,11 +1,11 @@
 const LOCAL_STORAGE_TASKS_KEY = "tasks";
-
 const PRIORITY = {
   FIRST: "first",
   SECOND: "second",
   THIRD: "third",
   FOURTH: "fourth",
 };
+const TASK_LIMIT = 10;
 
 let tasks = [];
 
@@ -21,15 +21,18 @@ taskForm.addEventListener("submit", handleTaskSubmit);
 function handleTaskSubmit(event) {
   event.preventDefault();
 
-  const newTask = createTaskObj();
-  tasks.push(newTask);
-  renderTask(newTask);
-  saveTasksToStorage();
+  const newTask = createNewTask();
+
+  if (checkTaskLimitAndNotify(newTask.priority)) {
+    return;
+  }
+
+  addTaskToList(newTask);
 
   taskForm.reset();
 }
 
-function createTaskObj() {
+function createNewTask() {
   return {
     id: Date.now(),
     priority: getTaskPriority(),
@@ -54,6 +57,28 @@ function getTaskPriority() {
   }
 
   return PRIORITY.FOURTH;
+}
+
+function checkTaskLimitAndNotify(priority) {
+  if (isTaskCountAtLimit(priority)) {
+    alert(
+      `우선순위별 할 일 개수는 각 ${TASK_LIMIT}개까지만 등록 가능해요!\n목록을 정리하고 다시 기록하세요`
+    );
+    return true;
+  }
+
+  return false;
+}
+
+function isTaskCountAtLimit(priority) {
+  const taskCount = document.querySelectorAll(`.${priority}`).length;
+  return taskCount === TASK_LIMIT;
+}
+
+function addTaskToList(newTask) {
+  tasks.push(newTask);
+  renderTask(newTask);
+  saveTasksToStorage();
 }
 
 function renderTask(newTask) {
